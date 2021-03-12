@@ -1,29 +1,27 @@
 import React from "react";
 import ReactDOM from "react-dom";
-//import "./index.css";
+import "./index.css";
 
 class Square extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      val: this.props.value,
+      val: null,
     };
   }
-  handleClickBtn() {
+  handleClickBtn = () => {
+    console.log(this.state.val); //It shows each Square has its own state.
     this.setState({
       val: "X",
     });
-  }
+  };
   render() {
-    console.log("render() in Square component"); //3
+    // console.log("render() in Square component"); //3
+    // console.log(this);
+    // console.log(this.state);
 
     return (
-      <button
-        className="square"
-        onClick={() => {
-          this.handleClickBtn();
-        }}
-      >
+      <button className="square" onClick={this.handleClickBtn}>
         {this.state.val}
       </button>
     );
