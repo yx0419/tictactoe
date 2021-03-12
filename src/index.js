@@ -3,37 +3,35 @@ import ReactDOM from "react-dom";
 import "./index.css";
 
 class Square extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      val: null,
-    };
-  }
-  handleClickBtn = () => {
-    console.log(this.state.val); //It shows each Square has its own state.
-    this.setState({
-      val: "X",
-    });
-  };
   render() {
-    // console.log("render() in Square component"); //3
-    // console.log(this);
-    // console.log(this.state);
-
-    return (
-      <button className="square" onClick={this.handleClickBtn}>
-        {this.state.val}
-      </button>
-    );
+    return <button onClick={this.props.cb}>{this.props.squareValue}</button>;
   }
 }
 
 class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      arrOfSquareValues: Array(9).fill(null), //Instead of each Square having its own state, let Board(parent) have all 9 states in one place.  Then parent component can pass the state to children using props. The possible state of Square is one of these three: 'O', 'X', null.
+    };
+  }
+
+  handleClickInBoard(i) {
+    this.state.arrOfSquareValues[i] = "X";
+    this.setState({
+      arrOfSquareValues: this.state.arrOfSquareValues,
+    });
+  }
+
   renderSquare(i) {
-    return <Square value={i} />; //pass prop from Board (=parent component) to Square (=child component).
+    return (
+      <Square
+        squareValue={this.state.arrOfSquareValues[i]}
+        cb={() => this.handleClickInBoard(i)}
+      />
+    ); //pass prop from Board (=parent component) to Square (=child component).
   }
   render() {
-    console.log("render() in Board component"); //2
     const status = "Next player: X";
     return (
       <div>
@@ -60,7 +58,6 @@ class Board extends React.Component {
 
 class Game extends React.Component {
   render() {
-    console.log("render() in Game component"); //1
     return (
       <div className="game">
         <div className="game-board">
