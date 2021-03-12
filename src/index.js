@@ -2,10 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
-class Square extends React.Component {
-  render() {
-    return <button onClick={this.props.cb}>{this.props.squareValue}</button>;
-  }
+function Square(props) {
+  return <button onClick={props.cb}>{props.squareValue}</button>;
 }
 
 class Board extends React.Component {
@@ -13,13 +11,15 @@ class Board extends React.Component {
     super(props);
     this.state = {
       arrOfSquareValues: Array(9).fill(null), //Instead of each Square having its own state, let Board(parent) have all 9 states in one place.  Then parent component can pass the state to children using props. The possible state of Square is one of these three: 'O', 'X', null.
+      isCurrentTurnX: true,
     };
   }
 
   handleClickInBoard(i) {
-    this.state.arrOfSquareValues[i] = "X";
+    this.state.arrOfSquareValues[i] = this.state.isCurrentTurnX ? "X" : "O";
     this.setState({
       arrOfSquareValues: this.state.arrOfSquareValues,
+      isCurrentTurnX: !this.state.isCurrentTurnX,
     });
   }
 
@@ -32,7 +32,9 @@ class Board extends React.Component {
     ); //pass prop from Board (=parent component) to Square (=child component).
   }
   render() {
-    const status = "Next player: X";
+    const who = this.state.isCurrentTurnX ? "X" : "O";
+    const status = "Next player: " + who;
+
     return (
       <div>
         <div className="status">{status}</div>
