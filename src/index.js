@@ -16,6 +16,12 @@ class Board extends React.Component {
   }
 
   handleClickInBoard(i) {
+    if (
+      calculateWinner(this.state.arrOfSquareValues) ||
+      this.state.arrOfSquareValues[i]
+    ) {
+      return;
+    }
     this.state.arrOfSquareValues[i] = this.state.isCurrentTurnX ? "X" : "O";
     this.setState({
       arrOfSquareValues: this.state.arrOfSquareValues,
