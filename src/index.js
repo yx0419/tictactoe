@@ -7,58 +7,18 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      arrOfSquareValues: Array(9).fill(null), //Instead of each Square having its own state, let Board(parent) have all 9 states in one place.  Then parent component can pass the state to children using props. The possible state of Square is one of these three: 'O', 'X', null.
-      isCurrentTurnX: true,
-    };
-  }
-
-  handleClickInBoard(i) {
-    if (
-      calculateWinner(this.state.arrOfSquareValues) ||
-      this.state.arrOfSquareValues[i]
-    ) {
-      return;
-    }
-    this.state.arrOfSquareValues[i] = this.state.isCurrentTurnX ? "X" : "O";
-    this.setState({
-      arrOfSquareValues: this.state.arrOfSquareValues,
-      isCurrentTurnX: !this.state.isCurrentTurnX,
-    });
-  }
-
   renderSquare(i) {
     return (
       <Square
-        squareValue={this.state.arrOfSquareValues[i]}
-        cb={() => this.handleClickInBoard(i)}
+        squareValue={this.props.lastArr[i]}
+        cb={() => this.props.cbb(i)}
       />
     ); //pass prop from Board (=parent component) to Square (=child component).
   }
+
   render() {
-    let s = this.state.isCurrentTurnX ? "X" : "O";
-    let result = "Next player is " + s;
-
-    let r = calculateWinner(this.state.arrOfSquareValues);
-
-    //let count = 0; //I tried this to check if game is over without winner (all filled), but this won't work because every time user clicks square btn, count will be set to zero again, never can become 9.
-    if (r) {
-      //if r is not null
-      result = "Winner is " + r;
-    } else {
-      //if r is null
-      let nArr = this.state.arrOfSquareValues.filter((x) => x === null);
-      if (nArr.length === 0) {
-        //if 9 values are all non-null, (to know this, use filter method and check if the new array's length is zero)
-        result = "No Winner, all filled";
-      }
-    }
-
     return (
       <div>
-        <div className="status">{result}</div>
         <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
@@ -80,14 +40,62 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [
+        {
+          arrOfSquareValues: Array(9).fill(null),
+        },
+      ],
+      isCurrentTurnX: true,
+    };
+  }
+
+  handleClick(i) {
+    const lastArr = this.state.history[this.state.history.length - 1]
+      .arrOfSquareValues;
+    if (calculateWinner(lastArr) || lastArr[i]) {
+      return; //ignore click
+    }
+
+    //Not mutating the existing array. Just create a new copy of the existing array. => to store history of moves
+    const copyArr = lastArr.slice();
+    copyArr[i] = this.state.isCurrentTurnX ? "X" : "O";
+
+    this.state.history.push({
+      arrOfSquareValues: copyArr,
+    });
+
+    this.setState({
+      history: this.state.history,
+      isCurrentTurnX: !this.state.isCurrentTurnX,
+    });
+  }
+
   render() {
+    const lastArr = this.state.history[this.state.history.length - 1]
+      .arrOfSquareValues; //the last element in array 'history'.
+
+    let result = "Next player is " + (this.state.isCurrentTurnX ? "X" : "O");
+    //console.log(lastArr);
+    let w = calculateWinner(lastArr);
+    if (w) {
+      result = "Winner is " + w;
+    } else {
+      let nArr = lastArr.filter((x) => x === null);
+      if (nArr.length === 0) {
+        result = "No Winner, all filled";
+      }
+    }
+
     return (
       <div className="game">
         <div className="game-board">
-          <Board />
+          <Board lastArr={lastArr} cbb={(i) => this.handleClick(i)} />
         </div>
         <div className="game-info">
-          <div>{}</div>
+          <div>{result}</div>
           <ol>{}</ol>
         </div>
       </div>
